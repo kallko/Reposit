@@ -16,11 +16,13 @@ Test Tasks 1
 к общему числу букв /не символов/ в сообщении.)
 
 
+Результат: RSS_final_ver2
 При создании использованы материалы и компоненты с сайтов:
+
 http://canvasjs.com/
 https://developers.google.com/feed
 
-Результат: RSS_final_ver2
+
 
 Test Task 2
 
