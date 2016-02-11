@@ -1,5 +1,5 @@
 # Reposit
-Test Tasks
+Test Tasks 1
 
 Реализуйте на языке JavaScript простейший интерфейс для чтения RSS-каналов (в любой из версий форматов RSS или Atom, 
 одной на выбор).
@@ -19,4 +19,22 @@ Test Tasks
 При создании использованы материалы и компоненты с сайтов:
 http://canvasjs.com/
 https://developers.google.com/feed
+
+Результат: RSS_final_ver2
+
+Test Task 2
+
+Написать класс Dog, который наследуется от класcа Animal. Класс Animal имеет метод getName (name можно передать в конструктор). Класс Dog имеет метод bark (возвращает строку «Dog {dogname} is barking».
+Пример использования:
+var dog = new Dog ('Aban');
+dog.getName () === 'Aban'; // true
+dog.bark () === 'Dog Aban is barking'; // true
+
+Результат indexDog
+
+Test Task 3
+
+back-end Node.js + Express, front-end - AngularJS. При открытии одностраничного приложения оно запрашивает у ноды JSON-ом список условных машин и выгружает их в табличку. В табличке отображается название машины и её грузоподъемность. Пользователь должен иметь возможность добавлять, удалять и редактировать машины прям в этой таблице. В качестве хранилища данных на back-end должен быть PostgreSQL(MySQL).
+
+Результат: (index.js server.js router.js requestHandler.js) 
 
