@@ -1,0 +1,124 @@
+
+<html>
+<head>
+    <title>KEYS GENERATOR</title>
+</head>
+<body>
+
+<script>
+
+    function Generator (){
+        this._startIndex=0;
+        this._endIndex=61;
+        this._field=0;
+       // alert("Generator Ready " + this._startIndex + " " + this._endIndex);
+    }
+
+    function GeneratorS(){
+        this._startIndex=0;
+        this._endIndex=52;
+        this._field=1;
+    }
+
+    function GeneratorI(){
+        this._startIndex=52;
+        this._endIndex=61;
+        this._field=2;
+    }
+
+    Generator.prototype.make=function() {
+        var i=0;
+        var result="";
+        while(i<10) {
+
+            var symba = Math.floor(Math.random() * (this._endIndex - this._startIndex + 1)) + this._startIndex;
+            var proto = symba;
+
+            if ((symba<26)) { proto +=65;
+
+            }
+
+            if ((symba>=26)&&(symba<52)) { proto+=71;
+
+            }
+
+
+
+            if (symba>=52) {
+                proto-=4;
+            }
+
+
+            var chr = String.fromCharCode(proto);
+            result+=chr;
+            i++
+        }
+
+        //alert(result);
+        document.getElementById("code"+this._field).value=result;
+    }
+
+
+    GeneratorS.prototype=Object.create(Generator.prototype);
+    GeneratorS.prototype.constructor=GeneratorS;
+
+    GeneratorI.prototype=Object.create(Generator.prototype);
+    GeneratorI.prototype.constructor=GeneratorI;
+
+
+    var worker= new Generator();
+    var workerS = new GeneratorS();
+    var workerI = new GeneratorI();
+
+
+    var i=0;
+    while (i<3){
+    var code = document.createElement("input");
+    code.id = "code"+i;
+    code.style.position = 'absolute';
+    code.style.top = 40+(i*30);
+    code.style.left = 20;
+    document.body.appendChild(code);
+
+    var but = document.createElement("button");
+    but.id = "but"+i;
+    but.style.position = 'absolute';
+    but.style.top = 40+(i*30);
+    but.style.left = 220;
+    document.body.appendChild(but);
+
+        i++;
+    }
+
+    document.getElementById("but0").textContent="MixSymbGenerator";
+    document.getElementById("but1").textContent="LettersGenerator";
+    document.getElementById("but2").textContent="IntegersGenerator";
+
+
+
+    document.getElementById("but0").addEventListener("click", function() {
+        worker.make();
+    });
+
+    document.getElementById("but1").addEventListener("click", function() {
+        workerS.make();
+    });
+
+    document.getElementById("but2").addEventListener("click", function() {
+        workerI.make();
+    });
+
+ //           onclick=worker.make();
+//    document.getElementById("but1").onclick=generatorLetters(10);
+//    document.getElementById("but2").onclick=generatorIntegers(10);
+
+
+
+
+
+
+</script>
+
+
+</body>
+</html>
