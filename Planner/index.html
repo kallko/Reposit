@@ -1,0 +1,160 @@
+<html ng-app="phonecatApp">
+<head>
+
+  <script src="bower_components/angular/angular.js"></script>
+  <script src="js/controllers.js"></script>
+    <link rel="stylesheet" rel="nofollow" href="http://cdn.leafletjs.com/leaflet-0.5.1/leaflet.css" />
+    <script src="http://cdn.leafletjs.com/leaflet-0.5.1/leaflet.js"></script>
+
+    <style>
+
+        #map {width: 1200px; height: 400px; }
+
+    </style>
+    <title>Point Relationship on map</title>
+
+</head>
+<body ng-controller="PhoneListCtrl">
+
+<div id="map"></div>
+
+
+
+<script type='text/javascript'>
+
+    var matrix = [[1, 56.3193, 44.0269, 0],[2, 56.3261, 44.1234, 0], [3, 56.3542,44.2312, 0], [4, 56.3672,44.3245, 0]]
+    var globalI=0;
+
+
+
+
+    //Определяем карту, координаты центра и начальный масштаб
+    var map = L.map('map').setView([56.346944, 44.1875], 12);
+
+    //Добавляем на нашу карту слой OpenStreetMap
+    L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a rel="nofollow" href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+
+
+
+// Create markers;
+    var i=0;
+    var size=4;
+    var mark=new Array;
+
+    while(i<size) {
+     mark[i] = L.marker([matrix[i][1], matrix[i][2]],{draggable:true}).addTo(map);
+
+        mark[i].bindPopup("Marker " + (i+1));
+
+
+    mark[i].on('dragend', dragend);
+
+        mark[i].on('dragstart', dragSatrt);
+
+        i++;
+    }
+         var popup = L.popup();
+
+
+    function dragSatrt(e){
+        var x=e.target._latlng.lat;
+        var y=e.target._latlng.lng;
+        var i=0;
+        var size=4;
+
+        while (i<size){
+            if ((matrix[i][1]-x==0)&&(matrix[i][2]-y==0)){
+                globalI=i;
+
+            }
+
+            i++;
+        }
+
+    }
+
+
+
+    function dragend(e) {
+
+        findRel(e.target._latlng);
+        popup
+                .setLatLng(e.target._latlng)
+                .setContent("New latlang for marker is " + e.target._latlng.lat)
+                .openOn(map);
+        globalI=0;
+    }
+
+
+
+
+    function findRel(cor){
+
+
+        var x=cor.lat;
+        var y=cor.lng;
+        var newRel=false;
+        var i=0;
+        var size=4;
+        while (i<4){
+            var dif1=matrix[i][1]-x;
+            var dif2=matrix[i][2]-y;
+            if ((Math.abs(dif1)<0.01)&&(Math.abs(dif2)<0.01)){
+            alert("Drop to Target " + (i+1));
+                document.getElementById(""+i).textContent=" "+(globalI+1);
+                newRel=true;
+            }
+
+            i++;
+        }
+
+        if (newRel==false){
+            map.removeLayer(mark[globalI]);
+            mark[globalI]=L.marker([matrix[globalI][1], matrix[globalI][2]],{draggable:true}).addTo(map);
+            mark[globalI].on('dragend', dragend);
+            mark[globalI].on('dragstart', dragSatrt);
+            mark[globalI].bindPopup("Marker " + (globalI+1));
+        }
+    }
+
+
+
+    //html blok with information about points
+
+    var title1 = document.createElement("text");
+    title1.innerHTML='<br>' + "Id__ Lat___ Lag__ Rel";
+    document.body.appendChild(title1);
+
+    var i=0;
+    var size=4;
+
+    while(i<size){
+
+        var pointIdField = document.createElement("text");
+        pointIdField.innerHTML="<br>"+""+matrix[i][0];
+        document.body.appendChild(pointIdField);
+
+        var pointLatField = document.createElement("text");
+        pointLatField.innerHTML=" "+" "+matrix[i][1];
+        document.body.appendChild(pointLatField);
+
+        var pointLangField = document.createElement("text");
+        pointLangField.innerHTML=" "+matrix[i][2];
+        document.body.appendChild(pointLangField);
+
+        var pointRelField = document.createElement("text");
+        pointRelField.id=i;
+        pointRelField.innerHTML=" "+matrix[i][3];
+        document.body.appendChild(pointRelField);
+
+        i++;
+    }
+
+
+</script>
+
+
+</body>
+</html>
