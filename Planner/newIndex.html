@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" rel="nofollow" href="http://cdn.leafletjs.com/leaflet-0.5.1/leaflet.css" />
+    <script src="http://cdn.leafletjs.com/leaflet-0.5.1/leaflet.js"></script>
+
+    <style>
+
+        #map {width: 1200px; height: 400px; }
+
+
+
+    </style>
+
+    <meta charset="UTF-8">
+    <title>Super Logistic</title>
+</head>
+<body>
+<div id="map"></div>
+
+
+<script type='text/javascript'>
+
+    var stores = [[56.3193, 44.0269],[56.3261, 44.1234], [56.3542,44.2312], [56.361,44.329], [56.337, 44.18]];
+    var cars = [[56.3093, 44.0469],[56.3161, 44.1034], [56.3642,44.1712], [56.320,44.228]]
+    var pointStore = new Array();
+    var pointCar = new Array();
+    var wayBill = new Array();
+    var textWayBill = new Array();
+    var carsLoaded=false;
+    var currentCar=null;
+    var map = L.map('map').setView([56.346944, 44.1875], 12);
+
+    L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a rel="nofollow" href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+
+
+    var but1 = document.createElement("button");
+    but1.id='but1';
+    but1.textContent='Load Cars';
+    document.body.appendChild(but1);
+    but1.onclick = refreshCars;
+
+    var but2 = document.createElement("button");
+    but2.textContent='Load Stores';
+    but2.id='but2';
+    document.body.appendChild(but2);
+    but2.onclick = refreshStores;
+
+    var area1 = document.createElement('input')
+    area1.id='lat'
+    area1.value='0'
+    document.body.appendChild(area1);
+
+    var area2 = document.createElement('input')
+    area2.id='lng'
+    area2.value='0'
+    document.body.appendChild(area2);
+
+    var select = document.createElement('select');
+    select.id='select';
+    var option1 = document.createElement("option");
+    option1.textContent='Car';
+    option1.value='Car';
+    select.options.add(option1);
+
+    var option2 = document.createElement("option");
+    option2.textContent='Store';
+    option2.value='Store';
+    select.options.add(option2);
+
+    document.body.appendChild(select);
+
+    var but3 = document.createElement("button");
+    but3.textContent='Add Unit';
+    but3.id='but3';
+    document.body.appendChild(but3);
+    but3.onclick=addUnit;
+
+    var LeafIcon = L.Icon.extend({
+        options: {
+            iconSize:     [32, 37],
+            shadowSize:   [51, 37],
+            iconAnchor:   [16,37],
+            shadowAnchor: [16, 37],
+            popupAnchor:  [0, -30]
+        }
+    });
+
+
+
+    function refreshCars() {
+
+
+        var cаrIcon = new LeafIcon({iconUrl: 'http://florist.sozdavatel.ru/upload/iblock/1c1/1c1eb7a4a8b72f5742efa98ba34bb1aa.png'});
+        var size = cars.length;
+        var i=0;
+        while (i<size){
+
+            pointCar[i] = L.marker([cars[i][0], cars[i][1]], {icon: cаrIcon, draggable:true}).addTo(map);
+            pointCar[i].on('dragstart', dragSatrt);
+            pointCar[i].on('dragend', dragEnd);
+
+            i++;
+        }
+
+        carsLoaded=true;
+
+        document.getElementById("but1").disabled = true
+
+
+    }
+
+
+    function refreshStores() {
+
+        var size = stores.length;
+
+        var i=0;
+        while (i<size){
+
+            pointStore[i] = L.marker([stores[i][0], stores[i][1]],{draggable:false}).addTo(map);
+            i++;
+        }
+
+
+        document.getElementById("but2").disabled = true
+
+
+    }
+
+    function addUnit() {
+        if ((document.getElementById('lat').value==0)||(document.getElementById('lng').value==0)){
+            alert ("Chose Destination on map.")
+            return;
+        }
+
+        var x= document.getElementById('lat').value;
+        var y= document.getElementById('lng').value;
+
+        if (document.getElementById('select').value=='Car') {
+
+            if (carsLoaded==false) {
+                alert("Load existing cars before.");
+                return;
+            }
+
+            cars.push([x,y]);
+            var index =cars.length-1;
+            var cаrIcon = new LeafIcon({iconUrl: 'http://florist.sozdavatel.ru/upload/iblock/1c1/1c1eb7a4a8b72f5742efa98ba34bb1aa.png'});
+            pointCar[index] = L.marker([cars[index][0], cars[index][1]], {icon: cаrIcon, draggable:true})
+            pointCar[index].addTo(map);
+            pointCar[index].on('dragstart', dragSatrt);
+            pointCar[index].on('dragend', dragEnd);
+
+
+        } else {
+            stores.push([x,y]);
+            var index =stores.length-1;
+            pointStore[index] = L.marker([stores[index][0], stores[index][1]],{draggable:false}).addTo(map);
+
+        }
+
+        document.getElementById('lat').value='0';
+        document.getElementById('lng').value='0';
+    }
+
+
+    function onMapClick(e) {
+        document.getElementById('lat').value= e.latlng.lat;
+        document.getElementById('lng').value= e.latlng.lng;
+    }
+
+    map.on('click', onMapClick);
+
+
+
+    function dragSatrt(e){
+
+        var x=e.target._latlng.lat;
+        var y=e.target._latlng.lng;
+        var i=0;
+        var size=cars.length;
+
+        while (i<size){
+
+            var dif1=Math.abs(cars[i][0]-x);
+            var dif2=Math.abs(cars[i][1]-y);
+
+
+            if ((dif1<0.01)&&(dif2<0.01)){
+
+                currentCar=i;
+                return;
+            }
+
+            i++;
+        }
+
+
+    }
+
+
+    function dragEnd(end){
+
+        //alert("Dragend for car " + currentCar);
+        var x=end.target._latlng.lat;
+        var y=end.target._latlng.lng;
+        //alert("Looking for new destination " + currentCar);
+
+        findStore(x,y);
+
+
+
+        currentCar=null;
+        //currentCar=null;
+    }
+
+
+    function findStore(x,y){
+
+        var i=0;
+        var size=stores.length;
+        var target=null;
+        var findStore=false;
+
+        while(i<size){
+            var dif1=stores[i][0]-x;
+            var dif2=stores[i][1]-y;
+           if  ((Math.abs(dif1)<0.01)&&(Math.abs(dif2)<0.01))
+            {
+
+                var carDup=checkDuplicateCar(i);
+
+                    //alert ("try to place car " + currentCar + " in store " + i + " result is " +carDup);
+
+
+                    if(carDup) {
+                        cars[currentCar][0] = stores[i][0];
+                        cars[currentCar][1] = stores[i][1];
+                        findStore = true;
+                        //alert("Drop to Target " + (i) + "New home for car " + currentCar + " " + cars[currentCar][0] + " " + cars[currentCar][1] );
+                        updateWayBill(currentCar, i);
+                        //alert("Apdeit Success")
+                    }
+
+            }
+            i++;
+        }
+
+        if (findStore==false){
+            //alert("Return to start point");
+            pointCar[currentCar].setLatLng([cars[currentCar][0],cars[currentCar][1]]);
+        }
+
+
+    }
+
+    function updateWayBill(car, store){
+
+        var waybillIsExist=false;
+
+        var size = textWayBill.length;
+
+            //alert("Check id="+car);
+
+           // alert(document.getElementById(""+car));
+
+            if(document.getElementById(""+car)!=undefined){
+
+                // проверка на повтор
+
+                var text=document.getElementById(""+car).textContent;
+                var k=text.lastIndexOf(">")
+                text=text.substring(k+1);
+                if (text==store){
+                    alert("The car is allready on this point. Chose another one.");
+                    return;
+                }
+
+                // конец проверки на повтор
+
+
+               // alert("We find WayBill");
+                waybillIsExist=true;
+                document.getElementById(""+car).innerHTML+='=>'+store;
+                wayBill.push(store);
+
+            }
+
+
+
+
+
+        if (waybillIsExist==false){
+            textWayBill[size]=document.createElement("text");
+            textWayBill[size].innerHTML='<br>'+'WayBill for car N'+car+ " >" + store;
+            textWayBill[size].id=car;
+            document.body.appendChild(textWayBill[size]);
+           // alert("Create element with id=" + car);
+            wayBill.push(car);
+            wayBill.push(store);
+
+        }
+
+
+    }
+
+
+    function checkDuplicateCar(index){
+
+        var i=0;
+        var size=cars.length;
+        var x=stores[index][0];
+        var y=stores[index][1];
+        while(i<size){
+            if((cars[i][0]==x)&&(cars[i][1]==y)){
+
+                alert("In the store " + index + "have duplicate car" + i + " Pls. choose another destination.") ;
+
+                return false;
+            }
+            i++
+        }
+
+        return true;
+
+    }
+
+
+</script>
+
+</body>
+</html>
